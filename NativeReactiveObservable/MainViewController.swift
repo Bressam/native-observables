@@ -14,7 +14,7 @@ class MainViewController: UIViewController {
     
     // MARK: - Variables
     private var initialFruts = ["Banana", "Apple", "Pineapple", "Grape"]
-    private var fruits: Observable<[String]> = .init(value: ["Banana", "Apple", "Pineapple", "Grape"])
+    private var fruits: Observable<[String]> = .init(["Banana", "Apple", "Pineapple", "Grape"])
     
     // MARK: - View lifecycle
     override func viewDidLoad() {
@@ -37,15 +37,15 @@ class MainViewController: UIViewController {
         for i in 0..<100 {
             DispatchQueue.main.asyncAfter(deadline: .now() + (1*TimeInterval(i))) {
                 let fruit: String = self.initialFruts.randomElement() ?? "Some fruit"
-                self.fruits.value?.append("\(fruit) \(i)")
+                self.fruits.value.append("\(fruit) \(i)")
             }
         }
     }
     
     func bindObservableAndObserver() {
         // Creates a "subscription" to observable class created
-        self.fruits.add { fruits in
-            print("New fruits added: \(fruits ?? [])")
+        self.fruits.subscribeOnMain { fruits in
+            print("New fruits added: \(fruits)")
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
@@ -64,14 +64,14 @@ extension MainViewController: UITableViewDelegate {
 extension MainViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.fruits.value?.count ?? 0
+        return self.fruits.value.count ?? 0
     }
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! UITableViewCell
         
-        cell.textLabel?.text = self.fruits.value?[indexPath.row]
+        cell.textLabel?.text = self.fruits.value[indexPath.row]
         
         return cell
     }
